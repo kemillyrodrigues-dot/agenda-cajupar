@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agenda de Solicitações — CajuPAR</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#1a1416">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Agenda CajuPAR">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="icon" href="/icon-192.png">
+<style>
+  :root{
+    --tinta:#1a1416; --tinta-2:#3b2f2c; --tinta-3:#7c6f6a;
+    --bg:#faf7f5; --card:#ffffff; --linha:#ece5e1; --linha-2:#f4efec;
+    --laranja:#f2902f; --coral:#ea5339; --brasa:#c2410c;
+    --sol-bg:#fff1e7; --sol-ink:#b3480e;
+    --rec-bg:#e6f5f0; --rec-ink:#0e8a6a;
+    --next-bg:#fde7ec; --next-line:#f3b0c0; --next-ink:#9f1239;
+    --aviso-bg:#fff8e6; --aviso-line:#f0cf7a; --aviso-ink:#7a5600;
+    --radius:14px;
+    --grad:linear-gradient(90deg,#f39330,#ea5339 55%,#1a1416);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--tinta);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.45;
+  }
+  .hide{display:none!important}
+  button,input,select,textarea{font:inherit}
+
+  /* ---------------- LOGIN ---------------- */
+  #tela-login{min-height:100vh;display:grid;place-items:center;padding:24px;background:
+    radial-gradient(1200px 500px at 50% -10%, #2a2022 0%, #1a1416 60%)}
+  .login-box{width:100%;max-width:430px}
+  .login-card{background:#fff;border-radius:18px;padding:28px 26px 24px;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+  .login-card img.logo{height:34px;display:block;margin:0 auto 18px}
+  .login-card h1{font-size:19px;text-align:center;margin:0 0 4px;letter-spacing:-.02em}
+  .login-card p.sub{text-align:center;color:var(--tinta-3);font-size:13px;margin:0 0 20px}
+  label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--tinta-3);margin:0 0 6px}
+  .campo{width:100%;border:1px solid var(--linha);border-radius:10px;padding:12px 13px;font-size:15px;background:#fff;color:var(--tinta)}
+  .campo:focus{outline:none;border-color:var(--laranja);box-shadow:0 0 0 3px rgba(242,144,47,.18)}
+  .btn{cursor:pointer;font-weight:700;font-size:14px;border-radius:10px;border:1px solid transparent;padding:12px 16px;transition:.15s}
+  .btn.principal{background:var(--tinta);color:#fff;width:100%;margin-top:14px}
+  .btn.principal:hover{background:#000}
+  .btn.principal:disabled{opacity:.55;cursor:not-allowed}
+  .btn.linha{background:#fff;border-color:var(--linha);color:var(--tinta-2)}
+  .btn.linha:hover{border-color:#d8cec9}
+  .btn.pequeno{padding:7px 11px;font-size:12.5px;border-radius:8px}
+  .barra-grad{height:4px;background:var(--grad);border-radius:99px;margin:0 0 22px}
+  .link{background:none;border:0;color:var(--brasa);font-weight:650;font-size:13px;cursor:pointer;padding:10px 0 0;display:block;margin:0 auto;text-decoration:underline}
+  .erro{background:#fdecec;color:#a3282a;border-radius:9px;padding:10px 12px;font-size:13px;margin-top:12px;font-weight:600}
+  .ok{background:var(--rec-bg);color:var(--rec-ink);border-radius:9px;padding:10px 12px;font-size:13px;margin-top:12px;font-weight:600}
+  .rodape-login{text-align:center;color:#8d817c;font-size:11.5px;margin-top:16px}
+  .grade2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:460px){ .grade2{grid-template-columns:1fr} }
+  .campo-bloco{margin-bottom:12px}
+
+  /* ---------------- CABEÇALHO ---------------- */
+  header.topo{background:var(--tinta);color:#fff}
+  .topo-in{max-width:1320px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px;justify-content:space-between}
+  .topo-in img.logo{height:26px;display:block}
+  .topo-dir{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .quem{font-size:12.5px;font-weight:650;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:99px;padding:6px 12px;white-space:nowrap}
+  .quem b{color:var(--laranja)}
+  .btn.claro{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff}
+  .btn.claro:hover{background:rgba(255,255,255,.18)}
+  .fita{height:3px;background:var(--grad)}
+
+  .wrap{max-width:1320px;margin:0 auto;padding:22px 20px 60px}
+
+  /* ---------------- BANNER ---------------- */
+  .hoje{border-radius:16px;padding:18px 20px;margin:0 0 16px;color:#fff;background:linear-gradient(135deg,#f2902f,#ea5339 60%,#b3320f);box-shadow:0 8px 26px rgba(234,83,57,.22)}
+  .hoje.vazio{background:linear-gradient(135deg,#0f766e,#115e59);box-shadow:0 8px 26px rgba(17,94,89,.18)}
+  .hoje .kicker{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.9;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .hoje .pulse{width:8px;height:8px;border-radius:50%;background:#fff;flex:none;animation:pulse 1.8s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.35;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
+  .hoje h2{margin:0 0 4px;font-size:21px;letter-spacing:-.02em;line-height:1.2}
+  .hoje .esc{font-size:13px;opacity:.9;margin:0 0 12px}
+  .hoje ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+  .hoje li{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.26);border-radius:10px;padding:8px 12px;font-size:13px;line-height:1.35}
+  .hoje li b{display:block;font-size:13.5px}
+  .hoje li span.u{opacity:.85;font-size:11.5px;display:block;margin-top:1px}
+  .hoje .nx{background:#fff;color:var(--next-ink);border-radius:5px;padding:1px 5px;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;display:inline-block;margin-top:4px}
+
+  /* checklist na faixa do dia */
+  .hoje li.chk{display:flex;align-items:flex-start;gap:10px;cursor:pointer;user-select:none;transition:.15s}
+  .hoje li.chk:hover{background:rgba(255,255,255,.24)}
+  .hoje li.chk .box{
+    width:22px;height:22px;border-radius:6px;border:2px solid rgba(255,255,255,.75);background:rgba(255,255,255,.12);
+    flex:none;display:grid;place-items:center;margin-top:1px;font-size:14px;font-weight:800;color:transparent;transition:.15s
+  }
+  .hoje li.chk.pronto{background:rgba(255,255,255,.28)}
+  .hoje li.chk.pronto .box{background:#fff;border-color:#fff;color:#0e8a6a}
+  .hoje li.chk.pronto .conteudo b{text-decoration:line-through;opacity:.75}
+  .hoje li.chk .conteudo{min-width:0}
+  .hoje li.chk .hora{display:block;font-size:10.5px;opacity:.85;margin-top:2px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .hoje .placar{display:inline-block;background:rgba(0,0,0,.22);border-radius:99px;padding:3px 10px;font-size:11.5px;font-weight:800;letter-spacing:.05em;margin-left:8px;vertical-align:2px}
+  .hoje.tudo{background:linear-gradient(135deg,#0e8a6a,#0f766e 60%,#115e59)}
+
+  /* acompanhamento (compradores/admin) */
+  .acomp{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+  .loja-st{border:1px solid var(--linha);border-radius:12px;padding:12px 13px}
+  .loja-st.ok{border-color:#bfe6d8;background:#f4fbf8}
+  .loja-st h4{margin:0 0 8px;font-size:13.5px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .loja-st .cnt{font-size:11px;font-weight:800;letter-spacing:.05em;border-radius:99px;padding:2px 8px;background:var(--sol-bg);color:var(--sol-ink)}
+  .loja-st.ok .cnt{background:var(--rec-bg);color:var(--rec-ink)}
+  .loja-st ul{list-style:none;margin:0;padding:0}
+  .loja-st li{font-size:12.5px;padding:3px 0;display:flex;gap:7px;align-items:flex-start;color:var(--tinta-2)}
+  .loja-st li .m{font-weight:800;flex:none}
+  .loja-st li.f{color:var(--tinta-3);text-decoration:line-through}
+
+  /* ---------------- PAINÉIS ---------------- */
+  .painel{background:var(--card);border:1px solid var(--linha);border-radius:var(--radius);padding:14px 16px;margin:0 0 16px}
+  .notif{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+  .notif .txt{font-size:13px;color:var(--tinta-2);flex:1 1 280px;min-width:0}
+  .notif .txt b{color:var(--tinta)}
+  .fila{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .status{font-size:12.5px;font-weight:650;padding:6px 10px;border-radius:8px;display:inline-block}
+  .status.ok{background:var(--rec-bg);color:var(--rec-ink)}
+  .status.warn{background:var(--aviso-bg);color:var(--aviso-ink)}
+  .status.err{background:#fdecec;color:#a3282a}
+  .ios-help{flex:1 1 100%;font-size:12.5px;color:var(--aviso-ink);background:var(--aviso-bg);border:1px solid var(--aviso-line);border-radius:10px;padding:10px 12px}
+  .ios-help ol{margin:6px 0 0;padding-left:20px}
+  .callout{background:var(--aviso-bg);border:1px solid var(--aviso-line);border-left-width:4px;border-radius:10px;padding:12px 16px;margin:0 0 14px;font-size:13.5px;color:var(--aviso-ink)}
+  .callout code{background:#fff;border:1px solid var(--aviso-line);border-radius:5px;padding:1px 6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+  .legend{display:flex;flex-wrap:wrap;align-items:center;gap:9px;font-size:12.5px;color:var(--tinta-2);background:#fff;border:1px solid var(--linha);border-radius:10px;padding:10px 14px;margin:0 0 18px}
+
+  .toggle{display:inline-flex;background:#efe9e5;border-radius:11px;padding:4px;gap:4px}
+  .toggle button{border:0;background:transparent;cursor:pointer;font-size:13.5px;font-weight:650;color:var(--tinta-2);padding:8px 16px;border-radius:8px;transition:.15s}
+  .toggle button[aria-selected="true"]{background:#fff;color:var(--tinta);box-shadow:0 1px 3px rgba(26,20,22,.14)}
+
+  .filtros{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:0 0 18px}
+  .filtros .lbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--tinta-3);margin-right:4px}
+  .chip{cursor:pointer;font-size:12.5px;font-weight:600;border:1px solid var(--linha);background:#fff;color:var(--tinta-2);padding:6px 12px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;transition:.15s}
+  .chip:hover{border-color:#d8cec9}
+  .chip[aria-pressed="true"]{background:var(--tinta);border-color:var(--tinta);color:#fff}
+  .chip .swatch{width:8px;height:8px;border-radius:50%;flex:none}
+
+  .badge-next{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;background:var(--next-bg);color:var(--next-ink);border:1px solid var(--next-line);border-radius:5px;padding:2px 6px;white-space:nowrap}
+  mark.nx{background:var(--next-bg);color:var(--next-ink);font-style:normal;font-weight:750;border-radius:4px;padding:0 3px}
+  .rowNext{background:#fffbfc}
+
+  .grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:16px;align-items:start}
+  .card{background:var(--card);border:1px solid var(--linha);border-radius:var(--radius);overflow:hidden}
+  .card-h{padding:14px 16px;border-bottom:1px solid var(--linha-2);border-top:3px solid var(--bc,#999)}
+  .card-h .marca{font-size:16px;font-weight:750;letter-spacing:-.01em}
+  .card-h .meta{font-size:12px;color:var(--tinta-3);margin-top:2px}
+  table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+  col.c1{width:39%} col.c2{width:61%}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--tinta-3);font-weight:700;padding:9px 16px;border-bottom:1px solid var(--linha-2);background:#fdfbfa}
+  td{padding:10px 16px;border-bottom:1px solid var(--linha-2);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  .item{font-weight:650;display:block}
+  .item .only{display:block;font-size:11px;font-weight:600;color:var(--tinta-3);margin-top:1px}
+  .nota{font-size:11.5px;color:var(--tinta-3);margin-top:3px;display:block}
+  .win{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+  .win:last-child{margin-bottom:0}
+  .win .s,.win .r{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:6px;line-height:1.35}
+  .win .s{background:var(--sol-bg);color:var(--sol-ink)}
+  .win .r{background:var(--rec-bg);color:var(--rec-ink)}
+  .win .r.next{background:var(--next-bg);color:var(--next-ink);border:1px solid var(--next-line)}
+  .win .r.next i{font-style:normal;font-weight:800;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;opacity:.85}
+  .win .ar{color:#c6b8b2;font-size:12px;font-weight:700}
+  .win .wn{font-size:11px;color:var(--tinta-3)}
+
+  .semana{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px;align-items:start}
+  .dcol{background:var(--card);border:1px solid var(--linha);border-radius:var(--radius);min-height:170px}
+  .dcol.hoje-col{border-color:var(--coral);box-shadow:0 0 0 2px rgba(234,83,57,.16)}
+  .dcol-h{padding:11px 13px;border-bottom:1px solid var(--linha-2);display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+  .dcol-h .dn{font-size:13.5px;font-weight:750}
+  .dcol-h .tg{font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;background:var(--coral);color:#fff;border-radius:5px;padding:2px 6px}
+  .bloco{padding:11px 13px;border-bottom:1px solid var(--linha-2)}
+  .bloco:last-child{border-bottom:0}
+  .bloco h4{margin:0 0 8px;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:6px}
+  .bloco.sol h4{color:var(--sol-ink)}
+  .bloco.rec h4{color:var(--rec-ink)}
+  .bloco h4 .bar{width:3px;height:11px;border-radius:2px;background:currentColor;flex:none}
+  .ent{font-size:12.2px;margin:0 0 9px;padding-left:9px;border-left:2px solid var(--linha)}
+  .ent.next{border-left-color:var(--next-line)}
+  .ent:last-child{margin-bottom:0}
+  .ent .en{font-weight:680;display:block}
+  .ent .eu{color:var(--tinta-3);font-size:11.3px;display:block;margin-top:1px}
+  .ent .ex{color:var(--tinta-3);font-size:11px;font-style:italic;display:block;margin-top:2px}
+  .vazio{padding:14px 13px;color:var(--tinta-3);font-size:12px;font-style:italic}
+
+  .foot{margin-top:26px;background:#fff;border:1px solid var(--linha);border-radius:var(--radius);padding:16px 18px}
+  .foot h3{margin:0 0 9px;font-size:13px}
+  .foot ul{margin:0;padding-left:18px;font-size:12.6px;color:var(--tinta-2)}
+  .foot li{margin-bottom:5px}
+
+  /* ---------------- ADMIN ---------------- */
+  .admin h2{font-size:17px;margin:0 0 4px;letter-spacing:-.01em}
+  .admin p.d{color:var(--tinta-3);font-size:12.5px;margin:0 0 14px}
+  .tab-senhas{width:100%;border-collapse:collapse;font-size:13px;table-layout:auto}
+  .tab-senhas th{background:#fdfbfa}
+  .senha-val{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;font-weight:700;letter-spacing:.02em;background:var(--sol-bg);color:var(--sol-ink);border-radius:7px;padding:4px 9px;display:inline-block}
+  .ped{border:1px solid var(--linha);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+  .ped.pendente{border-left:4px solid var(--laranja);background:#fffdfb}
+  .ped .info{font-size:13px;flex:1 1 260px;min-width:0}
+  .ped .info b{display:flex;align-items:center;gap:8px;font-size:14px}
+  .ped .info .sit{flex:none}
+  .ped .info span{color:var(--tinta-3);font-size:12px;display:block}
+  .sit{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border-radius:5px;padding:2px 7px}
+  .sit.pendente{background:var(--sol-bg);color:var(--sol-ink)}
+  .sit.aprovado{background:var(--rec-bg);color:var(--rec-ink)}
+  .sit.recusado{background:#fdecec;color:#a3282a}
+
+  @media (max-width:1080px){ .semana{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @media (max-width:620px){
+    .topo-in img.logo{height:20px}
+    .quem{font-size:11.5px;padding:5px 10px}
+    .btn.pequeno{padding:6px 10px;font-size:12px}
+    .semana,.grade{grid-template-columns:1fr}
+    .hoje h2{font-size:19px} .hoje ul{flex-direction:column} .hoje li{width:100%}
+    .wrap{padding:16px 14px 44px}
+    .topo-in{padding:12px 14px}
+  }
+  @media print{ .topo,.notif,.filtros,.toggle{display:none} .vista{display:block!important} }
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<section id="tela-login">
+  <div class="login-box">
+    <div class="login-card">
+      <img class="logo" src="/logo-cajupar.png" alt="CajuPAR">
+      <div class="barra-grad"></div>
+
+      <div id="form-entrar">
+        <h1>Agenda de Solicitações</h1>
+        <p class="sub">Entre com a senha da sua unidade.</p>
+        <label for="senha">Senha de acesso</label>
+        <input class="campo" type="password" id="senha" autocomplete="current-password" placeholder="••••••••" enterkeyhint="go">
+        <button class="btn principal" id="btn-entrar">Entrar</button>
+        <div id="msg-login"></div>
+        <button class="link" id="ir-pedir">Não tenho a senha — pedir acesso</button>
+      </div>
+
+      <div id="form-pedir" class="hide">
+        <h1>Pedir acesso</h1>
+        <p class="sub">Seu pedido vai para a Kemilly aprovar.</p>
+        <div class="campo-bloco">
+          <label for="p-nome">Nome completo</label>
+          <input class="campo" id="p-nome" autocomplete="name">
+        </div>
+        <div class="campo-bloco">
+          <label for="p-email">E-mail</label>
+          <input class="campo" id="p-email" type="email" autocomplete="email">
+        </div>
+        <div class="grade2">
+          <div class="campo-bloco">
+            <label for="p-unidade">Unidade</label>
+            <select class="campo" id="p-unidade"></select>
+          </div>
+          <div class="campo-bloco">
+            <label for="p-cargo">Cargo</label>
+            <select class="campo" id="p-cargo">
+              <option value="Gerente">Gerente</option>
+              <option value="Sócio proprietário">Sócio proprietário</option>
+              <option value="Comprador">Comprador</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+        </div>
+        <div class="campo-bloco">
+          <label for="p-obs">Observação (opcional)</label>
+          <input class="campo" id="p-obs" placeholder="ex.: assumi a loja este mês">
+        </div>
+        <button class="btn principal" id="btn-pedir">Enviar pedido</button>
+        <div id="msg-pedido"></div>
+        <button class="link" id="voltar-entrar">Voltar para o login</button>
+      </div>
+    </div>
+    <p class="rodape-login">Uso interno · CajuPAR</p>
+  </div>
+</section>
+
+<!-- ===================== APP ===================== -->
+<div id="tela-app" class="hide">
+  <header class="topo">
+    <div class="topo-in">
+      <img class="logo" src="/logo-cajupar-branca.png" alt="CajuPAR">
+      <div class="topo-dir">
+        <span class="quem" id="quem"></span>
+        <button class="btn claro pequeno hide" id="btn-painel">Painel</button>
+        <button class="btn claro pequeno" id="btn-sair">Sair</button>
+      </div>
+    </div>
+  </header>
+  <div class="fita"></div>
+
+  <div class="wrap">
+    <!-- AGENDA -->
+    <div id="area-agenda">
+      <section id="banner" class="hoje"></section>
+
+      <section class="painel hide" id="acompanha"></section>
+
+      <section class="painel notif">
+        <div class="txt" id="notif-txt">Receba um aviso no celular às <b>08:00</b> e às <b>16:00</b> com o que precisa ser solicitado no dia.</div>
+        <div class="fila">
+          <button class="btn principal pequeno" style="width:auto;margin:0" id="btn-ativar">Ativar notificações</button>
+          <button class="btn linha pequeno hide" id="btn-desativar">Desativar</button>
+        </div>
+        <div id="notif-status" class="fila"></div>
+        <div id="ios-help" class="ios-help hide"></div>
+      </section>
+
+      <div class="callout">
+        <b>Regra fixa para toda requisição:</b> depois de subir a requisição, identificar no <b>grupo operacional da unidade</b> do que se trata, com o número.
+        Ex.: <code>Proteínas: 1234</code> · <code>Hortifruti: 4321</code>
+      </div>
+
+      <div class="legend">
+        <span class="badge-next">semana seguinte</span>
+        <span><b>Atenção:</b> este marcador indica entrega na <b>semana seguinte</b> à do pedido — não é entrega desta semana. Programe o estoque para cobrir o intervalo.</span>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+        <div class="toggle" role="tablist">
+          <button role="tab" id="tab-marca" aria-selected="true">Por marca</button>
+          <button role="tab" id="tab-dia" aria-selected="false">Por dia da semana</button>
+        </div>
+      </div>
+
+      <div class="filtros" id="filtros"></div>
+      <section class="vista" id="vista-marca"><div class="grade" id="grade-marcas"></div></section>
+      <section class="vista hide" id="vista-dia"><div class="semana" id="grade-semana"></div></section>
+
+      <div class="foot" id="rodape"></div>
+    </div>
+
+    <!-- PAINEL ADMIN -->
+    <div id="area-admin" class="hide admin">
+      <div class="painel">
+        <h2>Senhas de acesso</h2>
+        <p class="d">Cada unidade tem a sua senha. Quem entra com a senha da loja vê só aquela loja; a senha dos compradores abre todas. Para trocar, edite e salve — vale na hora, e quem já estava logado continua até sair.</p>
+        <div style="overflow:auto">
+          <table class="tab-senhas" id="tab-senhas"></table>
+        </div>
+      </div>
+      <div class="painel">
+        <h2>Pedidos de acesso</h2>
+        <p class="d">Quem não tem senha pede por aqui. Ao aprovar, copie a senha da unidade e mande para a pessoa.</p>
+        <div id="lista-pedidos"></div>
+      </div>
+      <div class="painel">
+        <h2>Notificações ativas</h2>
+        <p class="d" id="resumo-avisos">—</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= util ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+const marcaSem = t => esc(t).replace(/semana seguinte/gi, m => '<mark class="nx">' + m + '</mark>');
+const guarda = {
+  get: k => { try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set: (k,v) => { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k,v); } catch(e){} }
+};
+let S = { token: null, perfil: null, marca: null, rotulo: null, dados: null, filtro: null, vista: 'marca' };
+
+async function api(rota, corpo, metodo) {
+  const h = { 'Content-Type': 'application/json' };
+  if (S.token) h['Authorization'] = 'Bearer ' + S.token;
+  const r = await fetch('/.netlify/functions/' + rota, {
+    method: metodo || (corpo ? 'POST' : 'GET'), headers: h,
+    body: corpo ? JSON.stringify(corpo) : undefined
+  });
+  let j = {}; try { j = await r.json(); } catch(e){}
+  if (r.status === 401 && S.token) { sair(); throw new Error('Sessão expirada. Entre de novo.'); }
+  if (!r.ok) throw new Error(j.erro || ('erro ' + r.status));
+  return j;
+}
+
+/* ================= LOGIN ================= */
+const UNIDADES_PEDIDO = [
+  ['compradores','Compradores (todas as lojas)'],
+  ['cam-asa-sul','Caminito Asa Sul'],
+  ['cam-asa-norte','Caminito Asa Norte'],
+  ['cam-nazo-ac','Caminito/Nazo Águas Claras'],
+  ['cam-nazo-sig','Caminito/Nazo SIG'],
+  ['caju-asa-norte','Caju Limão Asa Norte'],
+  ['caju-sudoeste','Caju Limão Sudoeste'],
+  ['caju-iam-sp','Caju Limão Itaim (SP)'],
+  ['nazo-asa-sul','Nazo Asa Sul'],
+  ['nazo-gyn','Nazo GYN'],
+  ['fb01','Fosters Asa Sul (FB 01)'],
+  ['fb02','Fosters Bosque (FB 02)'],
+  ['fb03','Fosters Águas Claras (FB 03)'],
+  ['fb04','Fosters Sudoeste (FB 04)'],
+  ['fb05','Fosters Asa Norte (FB 05)'],
+  ['responsa','Responsa']
+];
+
+function montaSelectPedido(){
+  $('#p-unidade').innerHTML = '<option value="">Escolha…</option>' +
+    UNIDADES_PEDIDO.map(u => '<option value="' + u[0] + '">' + esc(u[1]) + '</option>').join('');
+}
+
+async function entrar(){
+  const senha = $('#senha').value;
+  if (!senha) { $('#msg-login').innerHTML = '<div class="erro">Digite a senha.</div>'; return; }
+  $('#btn-entrar').disabled = true;
+  $('#msg-login').innerHTML = '';
+  try{
+    const r = await api('auth', { senha });
+    S.token = r.token; S.perfil = r.perfil; S.marca = r.marca; S.rotulo = r.rotulo;
+    guarda.set('sessao', JSON.stringify({ token: r.token, perfil: r.perfil, marca: r.marca, rotulo: r.rotulo }));
+    $('#senha').value = '';
+    await abrirApp();
+  }catch(e){
+    $('#msg-login').innerHTML = '<div class="erro">' + esc(e.message) + '</div>';
+  }
+  $('#btn-entrar').disabled = false;
+}
+
+async function pedirAcesso(){
+  const corpo = {
+    nome: $('#p-nome').value, email: $('#p-email').value,
+    unidade: $('#p-unidade').value, cargo: $('#p-cargo').value, obs: $('#p-obs').value
+  };
+  $('#btn-pedir').disabled = true; $('#msg-pedido').innerHTML = '';
+  try{
+    await api('pedido', corpo);
+    $('#msg-pedido').innerHTML = '<div class="ok">Pedido enviado. A Kemilly vai aprovar e te passar a senha da unidade.</div>';
+    ['#p-nome','#p-email','#p-obs'].forEach(s => $(s).value = '');
+  }catch(e){
+    $('#msg-pedido').innerHTML = '<div class="erro">' + esc(e.message) + '</div>';
+  }
+  $('#btn-pedir').disabled = false;
+}
+
+function sair(){
+  guarda.set('sessao', null);
+  S = { token:null, perfil:null, marca:null, rotulo:null, dados:null, filtro:null, vista:'marca' };
+  $('#tela-app').classList.add('hide');
+  $('#tela-login').classList.remove('hide');
+  $('#msg-login').innerHTML = '';
+}
+
+/* ================= APP ================= */
+async function abrirApp(){
+  $('#tela-login').classList.add('hide');
+  $('#tela-app').classList.remove('hide');
+  $('#quem').innerHTML = S.perfil === 'admin' ? 'Administração · <b>Kemilly</b>'
+    : (S.perfil === 'compradores' ? 'Compradores · <b>todas as lojas</b>' : 'Unidade · <b>' + esc(S.rotulo) + '</b>');
+  $('#btn-painel').classList.toggle('hide', S.perfil !== 'admin');
+  S.dados = await api('agenda');
+  S.feitos = S.dados.feitos || {};
+  S.filtro = (S.dados.ordem.length === 1) ? S.dados.ordem[0] : null;
+  desenhar();
+  estadoPush();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+}
+
+function nomes(ids){ return ids.map(i => (S.dados.un[i] && S.dados.un[i].nome) || i).join(' · '); }
+
+function desenhaBanner(){
+  const d = S.dados, dia = d.hoje;
+  let sol = (d.semana[dia] && d.semana[dia].sol) || [];
+  if (S.filtro) sol = sol.filter(e => e.un.includes(S.filtro));
+  const box = $('#banner');
+  const alvo = S.perfil === 'unidade' ? S.rotulo
+    : (S.filtro && d.un[S.filtro] ? d.un[S.filtro].nome : 'todas as unidades');
+  if (!sol.length) {
+    box.className = 'hoje vazio';
+    box.innerHTML = '<div class="kicker"><span class="pulse"></span>Hoje &middot; ' + esc(d.dias[dia]) + '</div>'
+      + '<h2>Nenhuma solicitação para hoje</h2>'
+      + '<p class="esc" style="margin:0">Nada a subir hoje para ' + esc(alvo) + '. Confira a agenda abaixo para se antecipar.</p>';
+    return;
+  }
+  const marcavel = S.perfil === 'unidade';
+  const feitos = S.feitos || {};
+  const prontos = marcavel ? sol.filter(e => feitos[e.it]).length : 0;
+  const tudo = marcavel && prontos === sol.length;
+  box.className = 'hoje' + (tudo ? ' tudo' : '');
+  const placar = marcavel ? '<span class="placar">' + prontos + ' de ' + sol.length + ' subidas</span>' : '';
+  const titulo = tudo ? 'Tudo subido hoje'
+    : (sol.length === 1 ? '1 requisição para subir hoje' : sol.length + ' requisições para subir hoje');
+  const rodape = marcavel
+    ? (tudo ? 'Nada pendente. Se ainda faltar algo, desmarque o item.'
+            : 'Marque cada item depois de subir a requisição e avisar no grupo da unidade.')
+    : 'Depois de subir, identifique no grupo operacional da unidade do que se trata, com o número.';
+  box.innerHTML = '<div class="kicker"><span class="pulse"></span>Solicitar hoje &middot; ' + esc(d.dias[dia]) + ' &middot; ' + esc(alvo) + '</div>'
+    + '<h2>' + titulo + placar + '</h2>'
+    + '<p class="esc">' + rodape + '</p>'
+    + '<ul>' + sol.map(e => {
+        const f = !!feitos[e.it];
+        const detalhe = esc(S.perfil === 'unidade' ? (e.ex || '')
+          : (S.filtro ? nomes(e.un.filter(u => u === S.filtro)) : nomes(e.un)));
+        const selo = e.next ? '<span class="nx">semana seguinte</span>' : '';
+        if (!marcavel) return '<li><b>' + esc(e.it) + '</b><span class="u">' + detalhe + '</span>' + selo + '</li>';
+        const hora = f && feitos[e.it].em ? '<span class="hora">✓ marcado ' + horaCurta(feitos[e.it].em) + '</span>' : '';
+        return '<li class="chk' + (f ? ' pronto' : '') + '" data-item="' + esc(e.it) + '" role="checkbox" tabindex="0" aria-checked="' + f + '">'
+          + '<span class="box">✓</span><span class="conteudo"><b>' + esc(e.it) + '</b>'
+          + '<span class="u">' + detalhe + '</span>' + selo + hora + '</span></li>';
+      }).join('') + '</ul>';
+  if (marcavel) box.querySelectorAll('li.chk').forEach(li => {
+    li.onclick = () => marcar(li.dataset.item, !feitos[li.dataset.item]);
+    li.onkeydown = ev => { if (ev.key === ' ' || ev.key === 'Enter') { ev.preventDefault(); li.click(); } };
+  });
+}
+
+const horaCurta = iso => { try { return new Date(iso).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' }); } catch(e){ return ''; } };
+
+async function marcar(item, feito){
+  const antes = JSON.parse(JSON.stringify(S.feitos || {}));
+  S.feitos = S.feitos || {};
+  if (feito) S.feitos[item] = { em: new Date().toISOString() }; else delete S.feitos[item];
+  desenhaBanner();
+  try{
+    const r = await api('feito', { item, feito });
+    S.feitos = r.feitos || {};
+  }catch(e){
+    S.feitos = antes;
+    alert('Não deu para salvar a marcação: ' + e.message);
+  }
+  desenhaBanner();
+}
+
+async function desenhaAcompanhamento(){
+  const box = $('#acompanha');
+  if (!box) return;
+  if (S.perfil === 'unidade') { box.classList.add('hide'); return; }
+  box.classList.remove('hide');
+  box.innerHTML = '<h2 style="font-size:15px;margin:0 0 4px">Situação de hoje nas lojas</h2>'
+    + '<p class="d" style="color:var(--tinta-3);font-size:12.5px;margin:0 0 12px">O que cada unidade já marcou como subido. Só as lojas marcam; aqui é acompanhamento.</p>'
+    + '<div class="acomp" id="acomp-grade">carregando…</div>';
+  try{
+    const r = await api('feito', null, 'GET');
+    const g = $('#acomp-grade');
+    if (!r.lojas || !r.lojas.length) { g.innerHTML = '<p style="color:var(--tinta-3);font-size:13px;margin:0">Hoje nenhuma loja tem requisição para subir.</p>'; return; }
+    g.innerHTML = r.lojas.map(l => '<div class="loja-st' + (l.feitos === l.total ? ' ok' : '') + '">'
+      + '<h4>' + esc(l.nome) + '<span class="cnt">' + l.feitos + '/' + l.total + '</span></h4>'
+      + '<ul>' + l.itens.map(i => '<li class="' + (i.feito ? 'f' : '') + '"><span class="m">' + (i.feito ? '✓' : '○') + '</span><span>' + esc(i.it) + '</span></li>').join('') + '</ul>'
+      + '</div>').join('');
+  }catch(e){ $('#acomp-grade').innerHTML = '<p style="color:#a3282a;font-size:13px;margin:0">Não deu para carregar: ' + esc(e.message) + '</p>'; }
+}
+
+function desenhaFiltros(){
+  const box = $('#filtros');
+  if (S.dados.ordem.length < 2) { box.innerHTML = ''; box.classList.add('hide'); return; }
+  box.classList.remove('hide');
+  box.innerHTML = '<span class="lbl">Filtrar</span>';
+  const mk = (id, rotulo, cor) => {
+    const b = document.createElement('button');
+    b.className = 'chip'; b.setAttribute('aria-pressed', String(S.filtro === id));
+    b.innerHTML = (cor ? '<span class="swatch" style="background:' + cor + '"></span>' : '') + esc(rotulo);
+    b.onclick = () => { S.filtro = id; desenhar(); };
+    box.appendChild(b);
+  };
+  mk(null, 'Todas as marcas', null);
+  S.dados.ordem.forEach(id => mk(id, S.dados.un[id].nome, S.dados.un[id].cor));
+}
+
+function desenhaMarcas(){
+  const g = $('#grade-marcas'); g.innerHTML = '';
+  S.dados.ordem.filter(id => !S.filtro || S.filtro === id).forEach(id => {
+    const u = S.dados.un[id], linhas = S.dados.linhas[id] || [];
+    const rows = linhas.map(l => {
+      const temNext = l.w.some(w => w.next);
+      const wins = l.w.map(w => '<span class="win"><span class="s">' + esc(w.s) + '</span><span class="ar">→</span>'
+        + '<span class="r' + (w.next ? ' next' : '') + '">' + esc(w.r)
+        + (w.next ? ' <i>· semana seguinte</i>' : '') + '</span>'
+        + (w.n ? '<span class="wn">' + esc(w.n) + '</span>' : '') + '</span>').join('');
+      return '<tr class="' + (temNext ? 'rowNext' : '') + '"><td><span class="item">' + esc(l.it)
+        + (l.only ? '<span class="only">' + esc(l.only) + '</span>' : '') + '</span>'
+        + (l.nota ? '<span class="nota">' + esc(l.nota) + '</span>' : '') + '</td><td>' + wins + '</td></tr>';
+    }).join('');
+    g.insertAdjacentHTML('beforeend', '<article class="card"><div class="card-h" style="--bc:' + u.cor + '">'
+      + '<div class="marca">' + esc(u.nome) + '</div>' + (u.reg ? '<div class="meta">' + esc(u.reg) + '</div>' : '')
+      + '</div><table><colgroup><col class="c1"><col class="c2"></colgroup>'
+      + '<thead><tr><th>Item</th><th>Solicita → recebe</th></tr></thead><tbody>' + rows + '</tbody></table></article>');
+  });
+}
+
+function desenhaSemana(){
+  const g = $('#grade-semana'); g.innerHTML = '';
+  S.dados.semana.forEach((d, i) => {
+    const f = arr => arr.filter(e => !S.filtro || e.un.some(u => u === S.filtro || u === S.filtro + '-n'));
+    const sol = f(d.sol), rec = f(d.rec);
+    const bloco = (list, cls, titulo) => list.length ? '<div class="bloco ' + cls + '"><h4><span class="bar"></span>' + titulo + '</h4>'
+      + list.map(e => '<div class="ent' + (e.next ? ' next' : '') + '"><span class="en">' + esc(e.it)
+        + (e.next ? ' <span class="badge-next">semana seguinte</span>' : '') + '</span>'
+        + '<span class="eu">' + esc(nomes(S.filtro ? e.un.filter(u => u === S.filtro) : e.un)) + '</span>'
+        + (e.ex ? '<span class="ex">' + marcaSem(e.ex) + '</span>' : '') + '</div>').join('') + '</div>' : '';
+    const vazio = (!sol.length && !rec.length) ? '<div class="vazio">Sem solicitações e sem recebimentos.</div>' : '';
+    g.insertAdjacentHTML('beforeend', '<div class="dcol' + (i === S.dados.hoje ? ' hoje-col' : '') + '">'
+      + '<div class="dcol-h"><span class="dn">' + esc(d.n) + '</span>'
+      + (i === S.dados.hoje ? '<span class="tg">hoje</span>' : '') + '</div>'
+      + bloco(sol, 'sol', 'Solicitar') + bloco(rec, 'rec', 'Receber') + vazio + '</div>');
+  });
+}
+
+const REGRAS = [
+  '<b>Nada é solicitado na segunda nem na quinta.</b> O que era pedido na segunda passou para <b>domingo</b> e o que era pedido na quinta passou para <b>quarta</b> — assim a requisição já está em tela quando o comprador senta para trabalhar. As entregas continuam nos mesmos dias.',
+  '<b>VPJ</b> (exclusivo Cajus, as três lojas): pede <b>domingo</b> e recebe <b>terça da semana seguinte</b>.',
+  '<b>Bread Maker</b> (exclusivo Fosters, as cinco lojas): o pedido sobe toda <b>quarta</b> e é recebido na <b>semana seguinte</b>.',
+  '<b>Farinha amarela</b> (exclusivo Caju Itaim): pede todo <b>domingo</b> e recebe <b>7 dias depois</b>, no domingo seguinte.',
+  '<b>Atum:</b> pedido na <b>quarta</b>, com recebimento até <b>terça da semana seguinte</b> — Nazo Asa Sul, Nazo GYN e as duas Caminito/Nazo (Águas Claras e SIG).',
+  '<b>Salmão:</b> pedido na quarta. <b>Nazo GYN</b> recebe terça e quinta da semana seguinte; <b>Nazo Asa Sul</b> tem janela de entrega de <b>segunda a quinta</b> da semana seguinte.',
+  '<b>Tilápia:</b> pedida na <b>quarta</b> por Caminito Asa Norte, Nazo Asa Sul, Nazo GYN e as duas Caminito/Nazo. A entrega é na <b>semana seguinte, no dia que a loja escolher</b> — por isso ela não aparece num dia fixo de recebimento.',
+  '<b>Itens com entrega na semana seguinte</b> (marcador rosa): VPJ, Bread Maker, farinha amarela, shimeji, tilápia, salmão, atum e Casa do Holandês da Caju Itaim (SP). O pedido desta semana só chega na semana posterior.',
+  '<b>Hortifruti — duas janelas:</b> domingo (entrega segunda para CPD, Cajus e Goiânia; terça à tarde para as demais) e quarta — entrega <b>quinta</b> para as Cajus e a Nazo GYN, e <b>sexta</b> para as Caminito, Nazo Asa Sul, Fosters e Responsa.',
+  '<b>Alface higienizado:</b> três janelas (ter→qua, qua→sex, sex→seg). <b>Caju Itaim (SP)</b> tem calendário próprio: dom→ter e qua→sex. <b>Nazo GYN e Responsa não trabalham com alface.</b>',
+  '<b>Vinhos:</b> as quatro Caminito e a Nazo Asa Sul (quarta → sexta) e a Caju Itaim SP (domingo → até sexta). Fosters e Responsa não trabalham com vinhos.',
+  '<b>Nazo GYN:</b> sem vinhos, sem shimeji e sem alface.',
+  '<b>Nazo Asa Sul</b> não faz solicitação geral de compras — solicita direto ao CPD.',
+  '<b>Casa do Holandês:</b> Caju Asa Norte e Sudoeste pedem <b>domingo</b> e recebem sexta da <b>mesma semana</b>. A <b>Caju Itaim (SP)</b> pede domingo e recebe até terça da <b>semana seguinte</b>.',
+  '<b>Caminito:</b> as quatro lojas pedem hortifruti, alface e vinhos; <b>shimeji somente o Caminito Asa Norte</b>. As conjuntas com Nazo (Águas Claras e SIG) acrescentam <b>atum e tilápia</b> na quarta.'
+];
+function desenhaRodape(){
+  $('#rodape').innerHTML = '<h3>Observações e regras específicas</h3><ul>' + REGRAS.map(r => '<li>' + r + '</li>').join('') + '</ul>';
+}
+
+function desenhar(){ desenhaBanner(); desenhaFiltros(); desenhaMarcas(); desenhaSemana(); desenhaRodape(); desenhaAcompanhamento(); }
+
+function trocaVista(v){
+  S.vista = v;
+  $('#tab-marca').setAttribute('aria-selected', String(v === 'marca'));
+  $('#tab-dia').setAttribute('aria-selected', String(v === 'dia'));
+  $('#vista-marca').classList.toggle('hide', v !== 'marca');
+  $('#vista-dia').classList.toggle('hide', v !== 'dia');
+}
+
+/* ================= PUSH ================= */
+const VAPID_PUBLIC = 'BMTIUXYKTCkfA4koTMGaYIItoZnJOk1f4pr1p8XhkRdj1T3gT8AaRTkbu-yJTWuAQzGWFM8mIpC1iEuxATKPXvE';
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+const pushOK = ('serviceWorker' in navigator) && ('PushManager' in window) && ('Notification' in window);
+const setStatus = (t, tipo) => { $('#notif-status').innerHTML = t ? '<span class="status ' + (tipo||'ok') + '">' + esc(t) + '</span>' : ''; };
+
+function b64ToU8(base64){
+  const pad = '='.repeat((4 - base64.length % 4) % 4);
+  const b64 = (base64 + pad).replace(/-/g,'+').replace(/_/g,'/');
+  const raw = atob(b64); const arr = new Uint8Array(raw.length);
+  for (let i=0;i<raw.length;i++) arr[i] = raw.charCodeAt(i);
+  return arr;
+}
+function mostraIOS(){
+  $('#ios-help').classList.remove('hide');
+  $('#ios-help').innerHTML = '<b>No iPhone é preciso instalar a página primeiro.</b><ol>'
+    + '<li>Toque no botão de compartilhar do Safari (o quadrado com a seta para cima).</li>'
+    + '<li>Escolha <b>Adicionar à Tela de Início</b> e confirme.</li>'
+    + '<li>Abra o ícone <b>Agenda CajuPAR</b> e ative as notificações por lá.</li></ol>';
+}
+async function ativarPush(){
+  if (!pushOK) { setStatus('Este navegador não suporta notificações.', 'err'); return; }
+  if (isIOS && !standalone) { mostraIOS(); setStatus('Instale na tela de início para ativar.', 'warn'); return; }
+  $('#btn-ativar').disabled = true; setStatus('Ativando…', 'warn');
+  try{
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') { setStatus('Permissão negada. Libere as notificações nas configurações do navegador.', 'err'); $('#btn-ativar').disabled = false; return; }
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:b64ToU8(VAPID_PUBLIC) });
+    await api('subscribe', { subscription: sub });
+    guarda.set('pushOn','1');
+    await estadoPush();
+    setStatus('Notificações ativadas.', 'ok');
+  }catch(e){ setStatus('Não deu para ativar: ' + e.message, 'err'); }
+  $('#btn-ativar').disabled = false;
+}
+async function desativarPush(){
+  $('#btn-desativar').disabled = true;
+  try{
+    const reg = await navigator.serviceWorker.getRegistration();
+    const sub = reg ? await reg.pushManager.getSubscription() : null;
+    if (sub) { await api('subscribe', { acao:'remover', subscription: sub }).catch(()=>{}); await sub.unsubscribe(); }
+    guarda.set('pushOn', null);
+    await estadoPush();
+    setStatus('Notificações desativadas.', 'warn');
+  }catch(e){ setStatus('Erro ao desativar: ' + e.message, 'err'); }
+  $('#btn-desativar').disabled = false;
+}
+async function estadoPush(){
+  if (!pushOK) { $('#btn-ativar').disabled = true; setStatus('Este navegador não suporta notificações.', 'warn'); return; }
+  if (isIOS && !standalone) mostraIOS();
+  const reg = await navigator.serviceWorker.getRegistration();
+  const sub = reg ? await reg.pushManager.getSubscription() : null;
+  const ativo = !!sub && guarda.get('pushOn') === '1';
+  $('#btn-ativar').classList.toggle('hide', ativo);
+  $('#btn-desativar').classList.toggle('hide', !ativo);
+  const alvo = S.perfil === 'unidade' ? esc(S.rotulo) : 'todas as lojas';
+  $('#notif-txt').innerHTML = ativo
+    ? 'Notificações <b>ativas</b> para <b>' + alvo + '</b>. O aviso chega às <b>08:00</b> e às <b>16:00</b> nos dias em que há requisição.'
+    : 'Receba um aviso no celular às <b>08:00</b> e às <b>16:00</b> com o que <b>' + alvo + '</b> precisa solicitar no dia.';
+}
+
+/* ================= ADMIN ================= */
+let admEstado = null;
+async function abrirPainel(){
+  $('#area-agenda').classList.add('hide');
+  $('#area-admin').classList.remove('hide');
+  $('#btn-painel').textContent = 'Ver agenda';
+  admEstado = await api('admin', { acao: 'estado' });
+  desenhaSenhas(); desenhaPedidos(); desenhaAvisos();
+}
+function fecharPainel(){
+  $('#area-admin').classList.add('hide');
+  $('#area-agenda').classList.remove('hide');
+  $('#btn-painel').textContent = 'Painel';
+}
+function desenhaSenhas(){
+  const c = admEstado.credenciais;
+  const linhas = [['compradores', c.compradores.rotulo || 'Compradores', c.compradores.senha]]
+    .concat(admEstado.unidades.map(u => [u.id, u.nome, (c.unidades[u.id] || {}).senha]))
+    .concat([['admin', 'Seu acesso de administração', c.admin.senha]]);
+  $('#tab-senhas').innerHTML = '<thead><tr><th>Acesso</th><th>Senha</th><th>Alcance</th><th></th></tr></thead><tbody>'
+    + linhas.map(l => '<tr><td><b>' + esc(l[1]) + '</b></td>'
+      + '<td><span class="senha-val" id="sv-' + l[0] + '">' + esc(l[2]) + '</span></td>'
+      + '<td style="color:var(--tinta-3);font-size:12px">' + (l[0] === 'compradores' ? 'todas as lojas' : (l[0] === 'admin' ? 'painel + todas' : 'só esta loja')) + '</td>'
+      + '<td style="text-align:right;white-space:nowrap">'
+      + '<button class="btn linha pequeno" onclick="copiar(\'' + l[0] + '\')">Copiar</button> '
+      + '<button class="btn linha pequeno" onclick="editarSenha(\'' + l[0] + '\',\'' + esc(l[1]).replace(/'/g,'') + '\')">Trocar</button></td></tr>').join('')
+    + '</tbody>';
+}
+window.copiar = function(id){
+  const t = $('#sv-' + id).textContent;
+  navigator.clipboard.writeText(t).then(() => { const e = $('#sv-' + id); const o = e.textContent; e.textContent = 'copiada!'; setTimeout(()=>e.textContent=o, 900); });
+};
+window.editarSenha = async function(alvo, rotulo){
+  const nova = prompt('Nova senha para ' + rotulo + ':');
+  if (nova === null) return;
+  const senha = String(nova).trim();
+  if (senha.length < 4) { alert('A senha precisa de ao menos 4 caracteres.'); return; }
+  try{
+    await api('admin', { acao:'trocar-senha', alvo, senha });
+    admEstado = await api('admin', { acao:'estado' });   /* recarrega o painel inteiro */
+    desenhaSenhas(); desenhaPedidos(); desenhaAvisos();
+    const el = document.getElementById('sv-' + alvo);
+    if (el) { el.style.transition = 'background .4s'; el.style.background = '#e6f5f0'; setTimeout(function(){ el.style.background = ''; }, 1200); }
+  }
+  catch(e){ alert('Não deu para trocar: ' + e.message); }
+};
+function desenhaPedidos(){
+  const ps = admEstado.pedidos || [];
+  if (!ps.length) { $('#lista-pedidos').innerHTML = '<p class="d">Nenhum pedido até agora.</p>'; return; }
+  $('#lista-pedidos').innerHTML = ps.map(p => '<div class="ped ' + (p.situacao === 'pendente' ? 'pendente' : '') + '">'
+    + '<div class="info"><b>' + esc(p.nome) + ' <span class="sit ' + esc(p.situacao) + '">' + esc(p.situacao) + '</span></b>'
+    + '<span>' + esc(p.email) + ' · ' + esc(p.cargo || '—') + '</span>'
+    + '<span>Unidade pedida: <b>' + esc(p.unidadeNome || p.unidade) + '</b>' + (p.obs ? ' · ' + esc(p.obs) : '') + '</span></div>'
+    + '<div class="fila">'
+    + (p.situacao === 'pendente'
+        ? '<button class="btn principal pequeno" style="width:auto;margin:0" onclick="decidir(\'' + p.id + '\',\'aprovado\')">Aprovar</button>'
+          + '<button class="btn linha pequeno" onclick="decidir(\'' + p.id + '\',\'recusado\')">Recusar</button>'
+        : '<button class="btn linha pequeno" onclick="decidir(\'' + p.id + '\',\'apagar\')">Apagar</button>')
+    + '</div></div>').join('');
+}
+window.decidir = async function(id, situacao){
+  try{ const r = await api('admin', { acao:'pedido', id, situacao }); admEstado.pedidos = r.pedidos; desenhaPedidos(); }
+  catch(e){ alert('Erro: ' + e.message); }
+};
+function desenhaAvisos(){
+  const a = admEstado.avisos || { total: 0, porMarca: {} };
+  const partes = Object.keys(a.porMarca).map(k => {
+    const nome = k === 'todas' ? 'Compradores' : ((S.dados.un[k] && S.dados.un[k].nome) || k);
+    return nome + ': ' + a.porMarca[k];
+  });
+  $('#resumo-avisos').innerHTML = a.total
+    ? '<b>' + a.total + '</b> aparelho(s) recebendo aviso — ' + esc(partes.join(' · '))
+    : 'Ninguém ativou as notificações ainda.';
+}
+
+/* ================= INÍCIO ================= */
+$('#btn-entrar').onclick = entrar;
+$('#senha').addEventListener('keydown', e => { if (e.key === 'Enter') entrar(); });
+$('#ir-pedir').onclick = () => { $('#form-entrar').classList.add('hide'); $('#form-pedir').classList.remove('hide'); };
+$('#voltar-entrar').onclick = () => { $('#form-pedir').classList.add('hide'); $('#form-entrar').classList.remove('hide'); };
+$('#btn-pedir').onclick = pedirAcesso;
+$('#btn-sair').onclick = sair;
+$('#btn-ativar').onclick = ativarPush;
+$('#btn-desativar').onclick = desativarPush;
+$('#tab-marca').onclick = () => trocaVista('marca');
+$('#tab-dia').onclick = () => trocaVista('dia');
+$('#btn-painel').onclick = () => { $('#area-admin').classList.contains('hide') ? abrirPainel() : fecharPainel(); };
+
+(async function init(){
+  montaSelectPedido();
+  const s = guarda.get('sessao');
+  if (s) {
+    try {
+      const o = JSON.parse(s);
+      S.token = o.token; S.perfil = o.perfil; S.marca = o.marca; S.rotulo = o.rotulo;
+      await abrirApp();
+      return;
+    } catch(e) { guarda.set('sessao', null); }
+  }
+  $('#senha').focus();
+})();
+</script>
+</body>
+</html>

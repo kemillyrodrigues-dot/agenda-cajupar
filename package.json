@@ -1,0 +1,11 @@
+{
+  "name": "agenda-cajupar",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Agenda de solicitacoes por marca - CajuPAR",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0",
+    "web-push": "^3.6.7"
+  }
+}
